@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import store from "./Redux/Store";
+// import store from "./Redux/Store";
 import { connect } from "react-redux";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -11,10 +11,13 @@ import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
+import { Age } from "./Action/action";
 
 function Api(props: any) {
   const [name, setname] = useState("");
   const [date, setdate] = useState("");
+  const [nerr, setnErr] = useState("");
+  const [derr, setdErr] = useState("");
 
   const onname = (e: any) => {
     setname(e.target.value);
@@ -31,11 +34,11 @@ function Api(props: any) {
 
   async function Click() {
     if (name === "") {
-      alert("Enter your name");
+      setnErr("Enter your name");
     } else if (date === "") {
-      alert("Enter your date of birth");
+      setdErr("Enter your date of birth");
     } else if (name.length < 3) {
-      alert("Name should be minimum 3 character");
+      setnErr("Name should be minimum 3 character");
     } else {
       const API =
         "https://cors-anywhere.herokuapp.com/https://backend-for-test-1.herokuapp.com/age";
@@ -45,10 +48,12 @@ function Api(props: any) {
         dateOfBirth: date,
       });
       const result = await response.data;
-      store.dispatch({
-        type: "USER",
-        payload: result,
-      });
+
+      props.Age(result);
+      // store.dispatch({
+      //   type: "USER",
+      //   payload: result,
+      // });
       console.log("result", result);
     }
   }
@@ -69,25 +74,29 @@ function Api(props: any) {
       >
         <TextField
           label="Name"
+          id="namee"
           onChange={(e) => onname(e)}
           style={{
             width: "90%",
             margin: "3%",
           }}
         />
+        <span style={{ color: "red" }}>*{nerr}</span>
 
         <TextField
           type="date"
+          id="datt"
           onChange={(e) => ondate(e)}
           style={{
             width: "90%",
             margin: "3%",
           }}
         />
+        <span style={{ color: "red" }}>*{derr}</span>
 
         <br />
-
-        <Button variant="contained" color="primary" onClick={Click}>
+        <br />
+        <Button variant="contained" color="primary" id="btt" onClick={Click}>
           POST
         </Button>
         <br />
@@ -179,8 +188,11 @@ function Api(props: any) {
   );
 }
 
-export default connect((store: any) => {
-  return {
-    storeData: store.userReducer.userInformation,
-  };
-})(Api);
+export default connect(
+  (store: any) => {
+    return {
+      storeData: store.userReducer.userInformation,
+    };
+  },
+  { Age }
+)(Api);
